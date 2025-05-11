@@ -1,4 +1,4 @@
-  // ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 // 1) GLOBAL CONFIG & MOBILE DETECTION
 // ─────────────────────────────────────────────────────────────────────────────
 const API_KEY           = "pk_0b8abc6f834b444f949f727e88a728e0";
@@ -156,13 +156,13 @@ async function fetchWeeklySchedule() {
       const h3 = document.createElement('h3'); h3.textContent = day; container.appendChild(h3);
       const ul = document.createElement('ul'); ul.style.listStyle = 'none'; ul.style.padding = '0';
       events.forEach(ev => {
-        const li = document.createElement('li');
+        const li = document.createElement('li'); li.style.marginBottom = '1rem';
         const wrap = document.createElement('div'); wrap.style.display = 'flex'; wrap.style.alignItems = 'center'; wrap.style.gap = '8px';
         const t = document.createElement('strong'); t.textContent = `${fmt(ev.startDateUtc)}–${fmt(ev.endDateUtc)}`; wrap.appendChild(t);
         const art = ev.metadata?.artwork?.default || ev.metadata?.artwork?.original;
         if (art) {
           const img = document.createElement('img'); img.src = art; img.alt = `${ev.title} artwork`;
-          img.style.cssText = 'width:30px;height:30px;object-fit:cover;border-radius:4px;'; wrap.appendChild(img);
+          img.style.cssText = 'width:30px;height:30px;object-fit:cover;border-radius:３px;'; wrap.appendChild(img);
         }
         const span = document.createElement('span'); span.textContent = ev.title; wrap.appendChild(span);
         if (!/archive/i.test(ev.title)) {
@@ -171,14 +171,13 @@ async function fetchWeeklySchedule() {
           a.target = '_blank'; a.innerHTML = '📅';
           a.style.cssText = 'font-size:1.4rem;text-decoration:none;margin-left:6px;'; wrap.appendChild(a);
         }
-        li.appendChild(wrap);
-        ul.appendChild(li);
+        li.appendChild(wrap); ul.appendChild(li);
       });
       container.appendChild(ul);
     });
   } catch (e) {
     console.error('Schedule error:', e);
-    document.getElementById('schedule-container').innerHTML = '<p>Error loading schedule.</p>';
+    container.innerHTML = '<p>Error loading schedule.</p>';
   }
 }
 
@@ -191,8 +190,7 @@ async function fetchNowPlayingArchive() {
     else if (md.filename) text += md.filename;
     else if (ct.title) text += ct.title;
     else if (ct.name) text += ct.name;
-    else text += 'Unknown Show';
-    el.textContent = text;
+    else text += 'Unknown Show'; el.textContent = text;
   } catch (e) {
     console.error('Archive-now error:', e);
     document.getElementById('now-archive').textContent = 'Unable to load archive show';
@@ -205,20 +203,34 @@ async function fetchNowPlayingArchive() {
 function openChatPopup() {
   const url = `https://app.radiocult.fm/embed/chat/${STATION_ID}?theme=midnight&primaryColor=%235A8785&corners=sharp`;
   if (isMobile) {
-    const modal = document.getElementById('chatModal'), iframeEl = document.getElementById('chatModalIframe');
+    const modal    = document.getElementById('chatModal'),
+          iframeEl = document.getElementById('chatModalIframe');
     if (modal && iframeEl) {
-      if (!iframeEl.src) iframeEl.src = url;
+      if (!iframeEl.src) {
+        iframeEl.src = url;
+      }
       modal.style.display = 'flex';
     }
   } else {
-    if (chatPopupWindow && !chatPopupWindow.closed) chatPopupWindow.focus();
-    else chatPopupWindow = window.open(url,'CuttersChatPopup','width=400,height=700,resizable=yes,scrollbars=yes');
+    if (chatPopupWindow && !chatPopupWindow.closed) {
+      chatPopupWindow.focus();
+    } else {
+      chatPopupWindow = window.open(
+        url,
+        'CuttersChatPopup',
+        'width=400,height=700,resizable=yes,scrollbars=yes'
+      );
+    }
   }
 }
 
 function closeChatModal() {
-  const modal = document.getElementById('chatModal'), iframeEl = document.getElementById('chatModalIframe');
-  if (modal && iframeEl) modal.style.display = 'none';
+  const modal    = document.getElementById('chatModal'),
+        iframeEl = document.getElementById('chatModalIframe');
+  if (modal && iframeEl) {
+    modal.style.display = 'none';
+    // do NOT clear iframeEl.src to preserve session
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -231,24 +243,27 @@ document.addEventListener('DOMContentLoaded', () => {
   if (isMobile) {
     document.querySelector('.mixcloud')?.remove();
   } else {
-    document.querySelectorAll('iframe.mixcloud-iframe').forEach(ifr => { ifr.src = ifr.src || ifr.dataset.src; });
-    shuffleIframesDaily();
+    document.querySelectorAll('iframe.mixcloud-iframe').forEach(ifr => {
+      ifr.src = ifr.src || ifr.dataset.src;
+    }); shuffleIframesDaily();
     const s = document.createElement('script'); s.src = 'https://widget.mixcloud.com/widget.js'; s.async = true;
     document.body.appendChild(s);
   }
 
   document.getElementById('popOutBtn')?.addEventListener('click', () => {
-    const src = document.getElementById('inlinePlayer').src; const w = window.open('','CCRPlayer','width=400,height=200,resizable=yes');
-    w.document.write(`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cutters Choice Player</title><style>body{margin:0;background:#111;display:flex;align-items:center;justify-content:center;height:100vh;}iframe{width:100%;height:180px;border:none;border-radius:4px;}</style></head><body><iframe src="${src}" allow="autoplay"></iframe></body></html>`);
+    const src = document.getElementById('inlinePlayer').src;
+    const w = window.open('', 'CCRPlayer', 'width=400,height=200,resizable=yes');
+    w.document.write(`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cutters Choice Player</title><style>body{margin:0;background:#111;display:flex;align-items:center;justify-content:center;height:100vh;}iframe{width:100%;height:180px;border:none;border-radius:4px;}}</style></head><body><iframe src="${src}" allow="autoplay"></iframe></body></html>`);
     w.document.close();
   });
 
   const ul = document.querySelector('.rc-user-list'); if (ul) {
-    new MutationObserver(() => { Array.from(ul.children).forEach(li => { if (!li.textContent.trim()) li.remove(); }); }).observe(ul, { childList: true });
+    new MutationObserver(() => { Array.from(ul.children).forEach(li => { if (!li.textContent.trim()) li.remove(); });
+    }).observe(ul, { childList: true });
   }
 
   // ────────────────────────────────────────────────────────────────────────────
-  // 7) BANNER GIF SEQUENCE (2 sweeps per set via animationiteration)
+  // 7) BANNER GIF SEQUENCE (axes then scissors)
   // ────────────────────────────────────────────────────────────────────────────
   const rightEl = document.querySelector('.header-gif-right');
   const leftEl  = document.querySelector('.header-gif-left');
